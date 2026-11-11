@@ -1,0 +1,4 @@
+mcp_servers:
+  typeui:
+    url: "https://mcp.typeui.sh"
+    auth: oauth

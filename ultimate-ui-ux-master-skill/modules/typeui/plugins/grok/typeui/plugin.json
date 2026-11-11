@@ -1,0 +1,32 @@
+{
+  "name": "typeui",
+  "version": "1.0.0",
+  "description": "Connect Grok to TypeUI MCP for curated design skills, UI prompts, and layout variations.",
+  "author": {
+    "name": "Bergside LLC",
+    "email": "zoltan@bergside.com",
+    "url": "https://www.typeui.sh"
+  },
+  "homepage": "https://www.typeui.sh",
+  "repository": "https://github.com/bergside/typeui",
+  "license": "MIT",
+  "category": "Design",
+  "keywords": [
+    "typeui",
+    "grok",
+    "xai",
+    "mcp",
+    "ui",
+    "design-skills",
+    "prompts",
+    "frontend"
+  ],
+  "tags": [
+    "mcp",
+    "ui",
+    "design-skills",
+    "prompts",
+    "frontend"
+  ],
+  "mcpServers": "./.mcp.json"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@figwright/plugin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Figma plugin for Figwright — UI + sandbox code.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run build:main && pnpm run build:ui",
+    "build:main": "vite build --config vite.config.main.ts",
+    "build:ui": "vite build --config vite.config.ts",
+    "dev": "vite build --config vite.config.ts --watch",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.69.0",
+    "@vueuse/core": "^15.0.0",
+    "vue": "^3.5.45",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.142.0",
+    "@figwright/shared": "workspace:*",
+    "@tailwindcss/vite": "^4.3.4",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vue/test-utils": "^2.5.1",
+    "happy-dom": "^21.0.4",
+    "tailwindcss": "^4.3.4",
+    "vite": "^8.3.6",
+    "vite-plugin-singlefile": "^2.3.4",
+    "vue-tsc": "^3.3.14"
+  }
+}
