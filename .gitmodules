@@ -1,0 +1,4 @@
+[submodule "clients/Client-1"]
+	path = clients/Client-1
+	url = https://github.com/hetaldesai18785-lgtm/Client-1.git
+	branch = main
