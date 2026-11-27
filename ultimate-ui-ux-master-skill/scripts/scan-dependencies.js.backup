@@ -1,0 +1,89 @@
+const fs = require("fs");
+const path = require("path");
+
+const root = process.cwd();
+const index = JSON.parse(fs.readFileSync("registry/skills-index.json", "utf8"));
+const skills = Array.isArray(index) ? index : index.skills;
+
+const allFiles = [];
+function walk(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full);
+    else allFiles.push(full);
+  }
+}
+walk(path.join(root, "modules"));
+
+const fileMap = new Map();
+for (const file of allFiles) {
+  const rel = path.relative(root, file).split(path.sep).join("/");
+  const base = path.basename(file);
+  if (!fileMap.has(base)) fileMap.set(base, []);
+  fileMap.get(base).push(rel);
+}
+
+const results = [];
+
+for (const skill of skills) {
+  const skillPath = skill.path;
+  const fullPath = path.resolve(root, skillPath);
+  if (!fs.existsSync(fullPath)) continue;
+
+  const content = fs.readFileSync(fullPath, "utf8");
+  const folder = path.dirname(fullPath);
+
+  const candidates = content.match(/(?:\.{1,2}\/)?(?:references|scripts|assets|examples|templates|workflows)\/[A-Za-z0-9_./ -]+/g) || [];
+  const refs = [...new Set(candidates.map(x => x.trim().replace(/[)\]>,.;]+$/, "")))];
+
+  const dependencies = refs.map(ref => {
+    const localPath = path.resolve(folder, ref);
+    if (fs.existsSync(localPath)) {
+      return { reference: ref, status: "local", foundAt: path.relative(root, localPath) };
+    }
+
+    const basename = path.basename(ref);
+    const matches = fileMap.get(basename) || [];
+
+    if (matches.length === 1) {
+      return { reference: ref, status: "shared", foundAt: matches[0] };
+    }
+
+    if (matches.length > 1) {
+      return { reference: ref, status: "unresolved", possibleLocations: matches.slice(0, 10) };
+    }
+
+    return { reference: ref, status: "missing" };
+  });
+
+  results.push({
+    name: skill.name,
+    repository: skill.repository,
+    skill: skillPath,
+    dependencies,
+    tools: [...new Set((content.match(/\b(?:npm|npx|pnpm|yarn|bun|pip|uv|MCP|Figma|Playwright|Puppeteer)\b/gi) || []).map(x => x.toLowerCase()))]
+  });
+}
+
+const counts = { local: 0, shared: 0, missing: 0, unresolved: 0 };
+for (const skill of results) {
+  for (const dep of skill.dependencies) counts[dep.status]++;
+}
+
+const output = {
+  scannedAt: new Date().toISOString(),
+  skillsScanned: results.length,
+  referenceCandidates: Object.values(counts).reduce((a, b) => a + b, 0),
+  counts,
+  skills: results
+};
+
+fs.writeFileSync("registry/dependencies.json", JSON.stringify(output, null, 2));
+
+console.log("Improved dependency scan completed.");
+console.log("Skills scanned:", output.skillsScanned);
+console.log("Local:", counts.local);
+console.log("Shared:", counts.shared);
+console.log("Missing:", counts.missing);
+console.log("Unresolved:", counts.unresolved);
+console.log("Created: registry/dependencies.json");
